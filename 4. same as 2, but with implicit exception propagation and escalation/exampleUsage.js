@@ -29,8 +29,16 @@ function givePermissionToUsers(permission, userIds, { userIdDoingRequest }) thro
   userManager.assertUserHasPermission(userIdDoingRequest, PERMISSIONS.view)
   userManager.assertUserHasPermission(userIdDoingRequest, PERMISSIONS.update)
 
+  // Get every users in the first place, so that if a NoFound exception occurs
+  // we don't start making modifications to the users and stop halfway through
+  const users = [];
   for (const userId of userIds) {
-    const user = userManager.getUser(userId, { userIdDoingRequest })
+    users.push(
+      userManager.getUser(userId, { userIdDoingRequest })
+    )
+  }
+
+  for (const user of users) {
     if (!user.permissions.includes(permission)) {
       const newPermissions = [...user.permissions, permission]
       try {
