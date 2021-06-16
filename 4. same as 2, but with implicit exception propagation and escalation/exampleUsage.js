@@ -58,49 +58,14 @@ function main() {
     console.log('User with id 3 does not have permissions to view other users')
   }
 
-  try {
-    givePermissionToUsers(PERMISSIONS.view, ['3'], { userIdDoingRequest: '1' })
-  } catch UnauthorizedEx {
-    throw new Error('Unexpected authorization failure - an admin user was used.')
-  } catch NotFoundEx {
-    throw new Error('Unexpected NotFound exception - This user should always be present.')
-  }
+  givePermissionToUsers(PERMISSIONS.view, ['3'], { userIdDoingRequest: '1' })
 
-  let usernameOfId2
-  try {
-    usernameOfId2 = getUsername('2', { userIdDoingRequest: '3' })
-  } catch UnauthorizedEx {
-    throw new Error('Unexpected authorization failure - user with ID 3 should have permissions now.')
-  }
-  console.log('Username of id 2 is: ' + usernameOfId2)
+  console.log('Username of id 2 is: ' + getUsername('2', { userIdDoingRequest: '3' }))
 
-  const getAgeOfId3 = () => {
-    try {
-      return userManager.getProperty('3', 'age', { userIdDoingRequest: '1' })
-    } catch UnauthorizedEx {
-      throw new Error('Unexpected authorization failure - an admin user was used.')
-    } catch NotFoundEx {
-      throw new Error('Unexpected NotFound exception - this user should exist')
-    } catch MissingPropEx {
-      throw new Error('Unexpected MissinProp exception - this user should have an age property')
-    }
-  }
-
-  try {
-    incrementAge('5', { userIdDoingRequest: '1', noopIfUserNotFound: true })
-  } catch NotFoundEx {
-    throw new Error('Unexpected NotFound exception - It was set to NO-OP if NotFound occured.')
-  }
-
-  console.log('age before increment: ' + getAgeOfId3())
-
-  try {
-    incrementAge('3', { userIdDoingRequest: '1' })
-  } catch NotFoundEx (ex) {
-    throw new Error('Unexpected NotFound exception - this user should exist')
-  }
-
-  console.log('age after increment: ' + getAgeOfId3())
+  incrementAge('5', { userIdDoingRequest: '1', noopIfUserNotFound: true })
+  console.log('age before increment: ' + userManager.getProperty('3', 'age', { userIdDoingRequest: '1' }))
+  incrementAge('3', { userIdDoingRequest: '1' })
+  console.log('age after increment: ' + userManager.getProperty('3', 'age', { userIdDoingRequest: '1' }))
 
   /* Expected output
     User with id 3 does not have permissions to view other users
